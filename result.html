@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result | MoodSenseAI</title>
+    <style>
+        :root {
+            --bg: #f7f8fb;
+            --panel: #ffffff;
+            --ink: #20242d;
+            --muted: #657083;
+            --primary: #0f766e;
+            --border: #dbe3ef;
+            --accent: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 24px;
+        }
+
+        main {
+            width: min(100%, 620px);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 34px;
+            box-shadow: 0 24px 60px rgba(32, 36, 45, 0.08);
+            text-align: center;
+        }
+
+        .label {
+            color: var(--primary);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 14px;
+        }
+
+        h1 {
+            margin: 14px 0 8px;
+            font-size: clamp(44px, 12vw, 74px);
+            line-height: 1;
+            letter-spacing: 0;
+        }
+
+        p {
+            margin: 0 auto;
+            max-width: 42ch;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.55;
+        }
+
+        .confidence {
+            margin: 28px 0;
+            display: grid;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .confidence-top {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .bar {
+            height: 16px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #e8edf5;
+        }
+
+        .bar span {
+            display: block;
+            height: 100%;
+            width: {{ confidence|int }}%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        a {
+            min-height: 46px;
+            border-radius: 8px;
+            padding: 0 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        a.secondary {
+            color: var(--ink);
+            background: #eef2f7;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="label">Detected Mood</div>
+        <h1>{{ mood }}</h1>
+        <p>{{ message }}</p>
+
+        <section class="confidence" aria-label="Confidence score">
+            <div class="confidence-top">
+                <span>Confidence</span>
+                <span>{{ confidence }}%</span>
+            </div>
+            <div class="bar"><span></span></div>
+        </section>
+
+        <div class="actions">
+            <a href="{{ url_for('camera') }}">Detect Again</a>
+            <a class="secondary" href="{{ url_for('index') }}">Home</a>
+        </div>
+    </main>
+</body>
+</html>

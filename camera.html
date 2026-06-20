@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera | MoodSenseAI</title>
+    <style>
+        :root {
+            --bg: #101820;
+            --panel: #ffffff;
+            --ink: #1f2937;
+            --muted: #64748b;
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --danger: #b91c1c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 24px;
+        }
+
+        main {
+            width: min(100%, 900px);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .camera-frame {
+            min-height: 420px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #020617;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        video,
+        canvas {
+            width: 100%;
+            height: 100%;
+            min-height: 420px;
+            object-fit: cover;
+            display: block;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 8px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.1;
+            letter-spacing: 0;
+        }
+
+        p {
+            color: var(--muted);
+            line-height: 1.55;
+            margin: 12px 0 0;
+        }
+
+        .actions {
+            display: grid;
+            gap: 10px;
+        }
+
+        button,
+        a {
+            min-height: 46px;
+            border: 0;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 18px;
+            font: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: wait;
+        }
+
+        a {
+            background: #eef2f7;
+            color: var(--ink);
+        }
+
+        .error {
+            color: var(--danger);
+            min-height: 22px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 760px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .camera-frame,
+            video,
+            canvas {
+                min-height: 340px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="camera-frame">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+        </section>
+
+        <aside class="panel">
+            <div>
+                <h1>Capture Face</h1>
+                <p>Place your face in the frame with good lighting, then capture one image for mood detection.</p>
+                <p id="error" class="error"></p>
+            </div>
+
+            <div class="actions">
+                <button id="captureBtn" type="button">Capture & Detect</button>
+                <a href="{{ url_for('index') }}">Back</a>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const captureBtn = document.getElementById("captureBtn");
+        const errorBox = document.getElementById("error");
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" },
+                    audio: false
+                });
+                video.srcObject = stream;
+            } catch (error) {
+                errorBox.textContent = "Camera access was blocked or unavailable.";
+                captureBtn.disabled = true;
+            }
+        }
+
+        async function captureAndDetect() {
+            errorBox.textContent = "";
+            captureBtn.disabled = true;
+            captureBtn.textContent = "Detecting...";
+
+            const width = video.videoWidth || 640;
+            const height = video.videoHeight || 480;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext("2d").drawImage(video, 0, 0, width, height);
+
+            const image = canvas.toDataURL("image/jpeg", 0.9);
+
+            try {
+                const response = await fetch("{{ url_for('detect') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Detection failed.");
+                }
+
+                const params = new URLSearchParams({
+                    mood: data.mood,
+                    confidence: data.confidence,
+                    message: data.message
+                });
+                window.location.href = `{{ url_for('result') }}?${params.toString()}`;
+            } catch (error) {
+                errorBox.textContent = error.message;
+                captureBtn.disabled = false;
+                captureBtn.textContent = "Capture & Detect";
+            }
+        }
+
+        captureBtn.addEventListener("click", captureAndDetect);
+        startCamera();
+    </script>
+</body>
+</html>

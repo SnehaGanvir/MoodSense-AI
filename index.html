@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodSenseAI</title>
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --panel: #ffffff;
+            --ink: #20242d;
+            --muted: #657083;
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --accent: #f59e0b;
+            --border: #dde3ee;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 12% 18%, rgba(15, 118, 110, 0.12), transparent 28rem),
+                radial-gradient(circle at 90% 88%, rgba(245, 158, 11, 0.14), transparent 26rem),
+                var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        main {
+            width: min(92vw, 920px);
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .intro {
+            padding: 16px 0;
+        }
+
+        .brand {
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(42px, 8vw, 76px);
+            line-height: 0.95;
+            letter-spacing: 0;
+        }
+
+        p {
+            margin: 22px 0 32px;
+            max-width: 54ch;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 22px;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 14px 28px rgba(15, 118, 110, 0.2);
+        }
+
+        a:hover {
+            background: var(--primary-dark);
+        }
+
+        .status {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--panel);
+            padding: 28px;
+            box-shadow: 0 24px 60px rgba(32, 36, 45, 0.08);
+        }
+
+        .meter {
+            height: 14px;
+            border-radius: 999px;
+            background: #e7edf4;
+            overflow: hidden;
+            margin: 22px 0;
+        }
+
+        .meter span {
+            display: block;
+            height: 100%;
+            width: 72%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .label {
+            color: var(--muted);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .mood {
+            margin-top: 10px;
+            font-size: 38px;
+            font-weight: 800;
+        }
+
+        @media (max-width: 760px) {
+            main {
+                grid-template-columns: 1fr;
+                padding: 32px 0;
+            }
+
+            .status {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="intro">
+            <div class="brand">MoodSenseAI</div>
+            <h1>Start Mood Detection</h1>
+            <p>Open your camera, capture a clear face image, and get an instant mood estimate from the browser.</p>
+            <a href="{{ url_for('camera') }}">Start Detection</a>
+        </section>
+
+        <aside class="status" aria-label="Mood preview">
+            <div class="label">Live preview result</div>
+            <div class="mood">Ready</div>
+            <div class="meter"><span></span></div>
+            <!-- <p>Works with your webcam and sends one captured frame to the Flask backend for analysis.</p> -->       </aside>
+    </main>
+</body>
+</html>
