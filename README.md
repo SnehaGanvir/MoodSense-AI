@@ -79,7 +79,6 @@ MoodSense-AI/
 ├── README.md
 └── .gitignore
 ```
-
 ---
 
 ## ⚙️ Installation
